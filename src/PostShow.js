@@ -1,52 +1,43 @@
-import React from 'react'
+import React from 'react' 
 import {Link} from 'react-router-dom'
 import { connect } from 'react-redux'
-import { startGetComments } from './actions/commentsAction'
-class PostShow extends React.Component{
-    constructor(){
-        super()
-        this.state={
-            users:[],
-            comments:[],
-            posts:[]
-        }
+import {startGetComments} from './actions/commentsAction'
+
+
+class PostShow extends React.Component {
+        componentDidMount(){
+        this.props.dispatch(startGetComments())
     }
-    componentDidMount(){
-        if(this.props.comments.length === 0){
-            this.props.dispatch(startGetComments())
-        }
-    }  
-
-        render(){
-            const post=this.props.userPosts
-            const user= this.props.users.filter(user=> user.id == post.userId)
-            const userComments= this.props.comments.filter(comment => comment.postId== post.id)
-        return(
-            <div>
-                <h2>USER NAME- {user.name}</h2>
-                <h3>TITLE: {post.title}</h3>
-                <h4>BODY: <br/> {post.body}</h4>
-                <hr/>
-                <h5> COMMENTS </h5>
-                <ul> 
-                    {userComments.map((comment)=>{
-                        return <li key={comment.id}> {comment.body}</li>
+    render() {
+      const  user = this.props.users.find(user=> user.id === this.props.post.userId)
+      return (
+            <div> 
+                <h2>USER NAME : {user.name}</h2>
+                <h3>TITLE : {this.props.post.title} </h3>
+                <h3>BODY : {this.props.post.body} </h3>
+                <h4>COMMENTS </h4>
+                <ul>{
+                      this.props.postComments.map(comment=>{
+                        return <li key={comment.id}>{comment.body} </li>
                     })}
-                </ul>
-                <hr/>
+                </ul> 
 
-                <h5><Link to={`/users/${user.id}`}>More posts of author-{user.name}</Link></h5>
-                 
-             </div>
+                <Link to={`/users/${user.id}`} >More posts of the authors</Link>                
+        </div> 
         )
     }
 }
 
-const mapStateToProps=(state, props)=>{
+const mapStateToProps = (state, props)=>{
+    console.log('postshow params', props.match.params.id)
     return {
-        userPosts: state.posts.find(post => post.id == props.match.params.id),
-        comments : state.comments,
+        postComments:state.comments.filter(comment=> comment.postId == props.match.params.id),
+        post : state.posts.find(post=> post.id == props.match.params.id),
         users : state.users
     }
 }
-export default connect(mapStateToProps)(PostShow)
+export default connect(mapStateToProps)(PostShow) 
+
+
+
+
